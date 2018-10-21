@@ -1,0 +1,40 @@
+Ostatnia aktualizacja: 29.05.2018 17:25
+
+1. Które dokładnie parametry inode powinny być takie, jak w usuwanym pliku [z "hihi" w nazwie]?
+
+Dokładnie te, które w kodzie źródłowym mfs są opisane "file type, protection, etc.".
+
+
+2. Co ma się dziać kiedy wywołane zostanie 'rm _hihi'?
+
+To jest plik z "hihi" w nazwie, więc stosuje się do niego opis usuwania plików z "hihi" w nazwie.
+Zatem:
+# touch ./_hihi 
+# stat ./_hihi 
+897 2 -rw-r--r-- 1 root operator 0 0 "May 19 12:28:19 2018" "May 19 12:28:19 2018" "May 19 12:28:19 2018" "Jan  1 00:00:00 1970" 4096 0 0 ./_hihi
+# rm ./_hihi; echo $?
+rm: ./_hihi: File exists
+1
+# stat ./_hihi 
+897 2 -rw-r--r-- 1 root operator 0 0 "May 19 12:28:19 2018" "May 19 12:28:19 2018" "May 19 12:28:19 2018" "Jan  1 00:00:00 1970" 4096 0 0 ./_hihi
+
+
+3. W przypadku, gdy w nazwie pliku znajduje się hihi, kto powinien zostać właścicielem (uid, gid) nowo-powstałego pliku? (właściciel usuwanego pliku, użytkownik wywołujący rm? czy może nie ma to znaczenia?)
+
+Właściciel (uid, gid) może być dowolny (czyli nie ma to znaczenia).
+
+
+4. "Jeśli stworzenie nowego pliku jest niemożliwe (np. plik o takiej samej nazwie już istnieje), to całe usuwanie ma się nie powieść i zakończyć z <b>odpowiednim</b> kodem błędu." Jakiego dokładnie kodu błędu Pan oczekuje?
+
+Opowiedni kod błędu to taki, który informuje o przyczynie niepowodzenia. Dostępne w MINIX-e kodu błędów zefiniowane są w /usr/include/sys/errno.h.
+Przykład: w sytuacji z pytania 2 usuwanie _hihi się nie powiodło, ponieważ nie powiodło się stworzenie pliku _hihi. Przyczyną niepowodzenia stworzenia nowego pliku było istnienie już pliku o takiej nazwie. Zatem, w tej konkretnej sytuacji system plików powinien zwrócić błąd EEXIST (dzięki czemu narzędzie rm wyświetli komunitakt "File exists").
+
+
+5. Nawiązując do pytania 3: czy nowo-powstały plik może mieć właściciela (65535, 65535)?
+
+Tak, może.
+
+
+6. Czy można wykorzystywać funkcje, które są w oryginalnym kodzie MINIXa zdefiniowane jako static w innych modułach serwera mfs?
+
+Tak, można.
